@@ -46,17 +46,21 @@ def playload(msg,toDevice=info['detail']['uuid'],deviceType='OwnApp'):
    'deviceType': deviceType})
    print ("Mqtt发送>>>>",_data)
    return _data
-
+#来源：https://github.com/blinker-iot/blinker-library/blob/20125223dc3511ecf08a5afe73de0dadef5519c0/src/Functions/BlinkerMIOT.h 
+#运行模式:{"mode":""}
+#电源上报:{"pState":"true"}
+#在线状态{'State':True}
 #处理小爱响应  
 def MI(msg):
   msg=json(msg)
   try:
     if(msg['data']['get']=="state"):
       #回应小爱
-      c.publish(pubtopic,playload('{"State":True}',toDevice='MIOT',deviceType='vAssistant'))
-      c.publish(pubtopic,playload({ 'temp':'100','humi':'0', 'pm25':'10','pm10':'10','co2':'10'},toDevice='MIOT_r',deviceType='vAssistant'))
+      #此处上报温度湿度  
+      c.publish(pubtopic,playload({"pState":"true", 'State':True,'temp':'100','humi':'0', 'pm25':'10','pm10':'10','co2':'10'},toDevice='MIOT_r',deviceType='vAssistant'))
   except:
     pass
+ #如果是电灯就会执行先得开关
   try:  
     if(msg['data']['set']['pState']==1):
       print("开启")
