@@ -1,16 +1,40 @@
 
+
+
+
 from robust import MQTTClient
+
+
 import utime,ujson,urequests,ntptime
+
+
 import network
+
+
 from machine import RTC,Pin
 
 
+
+
+
 #gpio 控制的引脚
+
+
 #st 引脚的值
+
+
 def pin(gpio=2,st=1):
+
+
     if st==1:
+
+
         Pin(gpio,Pin.OUT).value(1)
+
+
     elif st==0:
+
+
         Pin(gpio,Pin.OUT).value(0)
     elif st==2:
         return Pin(gpio).value()
@@ -22,16 +46,38 @@ def wifi(ssd,pwd):
     #连接WiFi
 
 
+
+
     wifi0 = network.WLAN(network.STA_IF)  #创建连接对象 如果让ESP32接入WIFI的话使用STA_IF模式,若以ESP32为热点,则使用AP模式
+
+
+
+
+
+
 
 
     if not wifi0.isconnected(): #判断WIFI连接状态
 
 
+
+
+
+
+
+
         print('connecting to network[正在连接]...')
+
+
         wifi0.active(True) #激活WIFI
+
+
         wifi0.connect(ssd, pwd) #essid为WIFI名称,password为WIFI密码
+
+
         while not wifi0.isconnected():
+
+
             pass # WIFI没有连接上的话做点什么,这里默认pass啥也不做
     print('network config[网络信息]:', wifi0.ifconfig())
     
@@ -84,7 +130,19 @@ def MI(msg):
   'State':'True', #设备状态  [必须]
 
 
+
+
+
+
+
+
   'mode":'',      #反馈运行模式 [为电灯或温度计时可不加] [DAY	日光,NIGHT	月光,COLOR	彩光,WARMTH	温馨,TV 电视模式,READING  阅读模式,COMPUTER	电脑模式]
+
+
+
+
+
+
 
 
   'num':'0',      # 未知 0 或 ""
@@ -96,21 +154,45 @@ def MI(msg):
   'humi':'0',     #湿度      [当设备为温度计时]
 
 
+
+
+
+
+
+
   'pm25':'10',    #PM2.5浓度 [当设备为温度计时]
+
+
+
+
+
+
 
 
   'pm10':'10',    #PM 10浓度 [当设备为温度计时]
 
 
+
+
+
+
+
+
   'co2':'10'      #co2浓度   [当设备为温度计时]
+
+
   }
+
+
   '''
+
+
   #c.publish(pubtopic,playload({'pState':'true', 'State':'True','num':'1','temp':'100','humi':'0', 'pm25':'10','pm10':'10','co2':'10'},toDevice='MIOT_r',deviceType='vAssistant'))
 
   #处理小爱响应  
   try:
     if(msg['get']=="state"):
-      c.publish(pubtopic,playload({'State':'True','temp':'100','humi':'0', 'pm25':'10','pm10':'10','co2':'10'},toDevice='MIOT_r',deviceType='vAssistant'))
+      c.publish(pubtopic,playload({"State":"True","pState":"true","num":"0","temp":"100","humi":"0", "pm25":"10","pm10":"10","co2":"10"},toDevice="MIOT_r",deviceType="vAssistant"))
       pass
   except:
     pass
@@ -199,3 +281,4 @@ c.publish(pubtopic,playload('{"state":"connected"}'))
 while 1:
   utime.sleep(1)
   c.check_msg()
+
