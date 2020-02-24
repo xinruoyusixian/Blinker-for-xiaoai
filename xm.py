@@ -85,10 +85,15 @@ def json(j):
   #json解析成对象
   return  ujson.loads(j)
 
-def getInfo(auth):
+def getInfo(auth,type_="light"):
     #获取信息
+    # 电灯"&miType=light"
+    #插座"&miType=outlet"
+    #多个插座"&miType=multi_outlet"
+    #传感器&miType=sensor"
+    #设置设备类型
     host = 'https://iot.diandeng.tech'
-    url = '/api/v1/user/device/diy/auth?authKey=' + auth
+    url = '/api/v1/user/device/diy/auth?authKey=' + auth + "&miType="+type_+"&version=1.2.2"
     print (host + url)
     data =  json(urequests.get(host + url).text) 
     ''' 
@@ -167,8 +172,6 @@ def MI(msg):
 
 
 
-
-
   'pm10':'10',    #PM 10浓度 [当设备为温度计时]
 
 
@@ -182,6 +185,11 @@ def MI(msg):
 
 
   }
+灯
+[57373] Got: {"deviceType":"DiyArduino","data":{"get":"state"},"fromDevice":"MIOT","toDevice":"448D910CAQAQ5CWMT6PW41K7"}
+[57406] isJson: {"data":{"pState":"True","col":0,"clr":0,"mode":0,"colTemp":"1000","bright":"1"},"fromDevice":"448D910CAQAQ5CWMT6PW41K7","toDevice":"MIOT_r","deviceType":"vAssistant"}
+#如果是温度则发送回应就可以了 {"temp":"20","humi":"20","pm25":"20","co2":"20"}
+
 
 
   '''
@@ -231,16 +239,13 @@ def sub_cb(topic, msg):
 wifi("PDCN","1234567788")
 #授权KEY
 key='60975280bf3e'
-# 电灯"&miType=light"
-#插座"&miType=outlet"
-#多个插座"&miType=multi_outlet"
-#传感器&miType=sensor"
+# 电灯"light"
+#插座"outlet"
+#多个插座"multi_outlet"
+#传感器s"ensor"
 #设置设备类型
-_type="https://iot.diandeng.tech/api/v1/user/device/diy/auth?authKey="+key+"&miType=light&version=1.2.2"
-print ("这个复制到浏览器运行只要运行一次就可以了 /r"+_type)
-
-
-info=  getInfo(key)
+devTpye="light"
+info=  getInfo(key,type_=devTpye)
 
 
 def playload(msg,toDevice=info['detail']['uuid'],deviceType='OwnApp'):
@@ -281,4 +286,3 @@ c.publish(pubtopic,playload('{"state":"connected"}'))
 while 1:
   utime.sleep(1)
   c.check_msg()
-
