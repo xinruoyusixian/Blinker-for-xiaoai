@@ -1,14 +1,20 @@
 交互流程
+========
 
-1.小爱请求状态 关键字 {"get":"state"}
-完整数据：
+###1.小爱请求状态 关键字
+{"get":"state"}
+######完整数据：
 {"deviceType":"DiyArduino","data":{"get":"state"},"fromDevice":"MIOT","toDevice":"448D910CAQAQ5CWMT6PW41K7"}
-2.回复设备 当前状态 "data":  {"pState":"True","col":0,"clr":0,"mode":0,"colTemp":"1000","bright":"1"}
-完整数据：{"data":{"pState":"True","col":0,"clr":0,"mode":0,"colTemp":"1000","bright":"1"},"fromDevice":"448D910CAQAQ5CWMT6PW41K7","toDevice":"MIOT_r","deviceType":"vAssistant"}
-3.小爱下发指令： "data":    {"set":{"pState":true}}
-完整数据  {"deviceType":"DiyArduino","data":{"set":{"pState":true}},"fromDevice":"MIOT","toDevice":"448D910CAQAQ5CWMT6PW41K7"}
-4.回复指令完成状态："data":  {"pState":"True"}
-完整数据：{"data":{"pState":"True"},"fromDevice":"448D910CAQAQ5CWMT6PW41K7","toDevice":"MIOT_r","deviceType":"vAssistant"}
+###2.回复设备 当前状态 "data":  {"pState":"True","col":0,"clr":0,"mode":0,"colTemp":"1000","bright":"1"}
+######完整数据：
+{"data":{"pState":"True","col":0,"clr":0,"mode":0,"colTemp":"1000","bright":"1"},"fromDevice":"448D910CAQAQ5CWMT6PW41K7","toDevice":"MIOT_r","deviceType":"vAssistant"}
+###3.小爱下发指令：
+"data":    {"set":{"pState":true}}
+######完整数据 :
+{"deviceType":"DiyArduino","data":{"set":{"pState":true}},"fromDevice":"MIOT","toDevice":"448D910CAQAQ5CWMT6PW41K7"}
+###4.回复指令完成状态：
+"data":  {"pState":"True"}
+######完整数据：{"data":{"pState":"True"},"fromDevice":"448D910CAQAQ5CWMT6PW41K7","toDevice":"MIOT_r","deviceType":"vAssistant"}
 
 至此一个指令完整的交互完成
 延申：
@@ -22,7 +28,7 @@
 {"set":{"bright":21}}
 回复： {"bright":"21"}
 
-#以下是日志 可以研究一下 
+以下是日志 可以研究一下 
 #小请求获得状态
 [992546] Got: {"deviceType":"DiyArduino","data":{"get":"state"},"fromDevice":"MIOT","toDevice":"448D910CAQAQ5CWMT6PW41K7"}
 [992547] data: {"get":"state"}
