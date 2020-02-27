@@ -30,7 +30,7 @@
 回复： {"bright":"21"}
 
 以下是日志 可以研究一下 
-# 小请求获得状态
+#####小请求获得状态
 [992546] Got: {"deviceType":"DiyArduino","data":{"get":"state"},"fromDevice":"MIOT","toDevice":"448D910CAQAQ5CWMT6PW41K7"}
 [992547] data: {"get":"state"}
 [992549] fromDevice: MIOT
@@ -45,15 +45,15 @@
 [992664] {"data":{"pState":"True","col":0,"clr":0,"mode":0,"colTemp":"1000","bright":"1"},"fromDevice":"448D910CAQAQ5CWMT6PW41K7","toDevice":"MIOT_r","deviceType":"vAssistant"}
 [992669] ...OK!
 [992670] Freeheap: 5808
-# 回复小爱电灯状态
+##### 回复小爱电灯状态
 [992672] Send: {"pState":"True","col":0,"clr":0,"mode":0,"colTemp":"1000","bright":"1"}
-# 小爱下发设置开关指令  "pState" 为true   是开  ,false 是关
+##### 小爱下发设置开关指令  "pState" 为true   是开  ,false 是关
 [992956] Got: {"deviceType":"DiyArduino","data":{"set":{"pState":true}},"fromDevice":"MIOT","toDevice":"448D910CAQAQ5CWMT6PW41K7"}
 [992957] data: {"set":{"pState":true}}
 [992960] fromDevice: MIOT
 [992962] form MIOT
 [992985] MIOT parse data: {"set":{"pState":true}}
-# 设置完毕后回复给小爱
+##### 设置完毕后回复给小爱
 [992985] need set power state: on
 [992986] response to MIOT: {"pState":"True"}
 [992986] isJson: {"data":{"pState":"True"},"fromDevice":"448D910CAQAQ5CWMT6PW41K7","toDevice":"MIOT_r","deviceType":"vAssistant"}
@@ -82,7 +82,7 @@
 [1010781] data: {"set":{"pState":false}}
 [1010783] fromDevice: MIOT
 [1010786] form MIOT
-# 关灯指令下发
+##### 关灯指令下发
 [1010808] MIOT parse data: {"set":{"pState":false}}
 [1010809] need set power state: off
 [1010809] response to MIOT: {"pState":"False"}
@@ -92,7 +92,7 @@
 [1010849] {"data":{"pState":"False"},"fromDevice":"448D910CAQAQ5CWMT6PW41K7","toDevice":"MIOT_r","deviceType":"vAssistant"}
 [1010850] ...OK!
 [1010851] Freeheap: 4784
-# 回复关灯指令
+##### 回复关灯指令
 [1010853] Send: {"pState":"False"}
 [1029815] Got: {"deviceType":"DiyArduino","data":{"get":"state"},"fromDevice":"MIOT","toDevice":"448D910CAQAQ5CWMT6PW41K7"}
 [1029816] data: {"get":"state"}
@@ -154,7 +154,7 @@
 [1076145] Freeheap: 5744
 [1076147] Send: {"pState":"True","col":0,"clr":0,"mode":0,"colTemp":"1000","bright":"1"}
 [1096793] Got: {"deviceType":"DiyArduino","data":{"set":{"bright":21}},"fromDevice":"MIOT","toDevice":"448D910CAQAQ5CWMT6PW41K7"}
-# 设置亮度
+##### 设置亮度
 [1096794] data: {"set":{"bright":21}}
 [1096796] fromDevice: MIOT
 [1096799] form MIOT
@@ -200,7 +200,7 @@
 [1136542] Freeheap: 5808
 [1136544] Send: {"pState":"True","col":0,"clr":0,"mode":0,"colTemp":"1000","bright":"1"}
 [1136561] Got: {"deviceType":"DiyArduino","data":{"set":{"col":255}},"fromDevice":"MIOT","toDevice":"448D910CAQAQ5CWMT6PW41K7"}
-# 设置颜色
+##### 设置颜色
 [1136564] data: {"set":{"col":255}}
 [1136566] fromDevice: MIOT
 [1136569] form MIOT
@@ -214,7 +214,7 @@
 [1136676] {"data":{"col":255,"clr":255},"fromDevice":"448D910CAQAQ5CWMT6PW41K7","toDevice":"MIOT_r","deviceType":"vAssistant"}
 [1136677] ...OK!
 [1136678] Freeheap: 4808
-# 设置颜色
+##### 回复颜色
 [1136680] Send: {"col":255,"clr":255}
 [1143586] Got: {"deviceType":"DiyArduino","data":{"set":{"col":16777215}},"fromDevice":"MIOT","toDevice":"448D910CAQAQ5CWMT6PW41K7"}
 [1143588] data: {"set":{"col":16777215}}
