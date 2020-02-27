@@ -12,7 +12,7 @@
 {"deviceType":"DiyArduino","data":{"get":"state"},"fromDevice":"MIOT","toDevice":"448D910CAQAQ5CWMT6PW41K7"}
 ### 2.回复设备 当前状态 
 "data":  {"pState":"True","col":0,"clr":0,"mode":0,"colTemp":"1000","bright":"1"}
-**如果是设备是温度则发送回应就可以了 {"temp":"20","humi":"20","pm25":"20","co2":"20"} **
+** 如果是设备是温度则发送回应就可以了 {"temp":"20","humi":"20","pm25":"20","co2":"20"} **
 ###### 完整数据：
 {"data":{"pState":"True","col":0,"clr":0,"mode":0,"colTemp":"1000","bright":"1"},"fromDevice":"448D910CAQAQ5CWMT6PW41K7","toDevice":"MIOT_r","deviceType":"vAssistant"}
 ### 3.小爱下发指令：
