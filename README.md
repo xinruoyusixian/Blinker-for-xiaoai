@@ -37,6 +37,19 @@
 回复： {"bright":"21"}
 
 以下是日志 可以研究一下 
+插座 也是类似的如果要单独更改名称可以在Blinker 的app设置 比如 客厅 厨房 等名称就即可区分识别
+[197457] MIOT Query codes: 0
+[197457] MIOT Query All
+[197483] [Send]: {"pState":"False"}
+[197876] need set power state: on
+[197902] [Send]: {"pState":"True"}
+[203811] MIOT Query codes: 0
+[203811] MIOT Query All
+[203843] [Send]: {"pState":"True"}
+[204225] need set power state: off
+[204252] [Send]: {"pState":"False"}
+
+
 #####小请求获得状态
 [992546] Got: {"deviceType":"DiyArduino","data":{"get":"state"},"fromDevice":"MIOT","toDevice":"448D910CAQAQ5CWMT6PW41K7"}
 [992547] data: {"get":"state"}
