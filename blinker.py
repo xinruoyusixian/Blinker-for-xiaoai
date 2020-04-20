@@ -67,7 +67,7 @@ if __name__ == "__main__":
         mq.c.publish(mq.pubtopic,mq.playload({"pState":"True","temp":str(TH[0]),"humi":str(TH[1]), "pm25":"10","co2":"10"},"MIOT_r","vAssistant"))
         mq.ping()
 
-  mq=blinker("60975280bf3e",cb,'sensor')  
+  mq=blinker("609f3e",cb,'sensor')  
   while 1:
           utime.sleep(1)
           mq.c.check_msg()
