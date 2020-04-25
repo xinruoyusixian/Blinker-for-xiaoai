@@ -49,26 +49,21 @@ class  blinker:
      'toDevice':   toDevice,
      'data':       msg ,
      'deviceType': deviceType})
-     print ("[",utime.time(),"]Mqtt发送>>>>",_data)
+     print ("[",utime.time(),"]Send:",_data)
      return _data
-
-
+       
 
 
 if __name__ == "__main__": 
-  import  lib
-  lib.pin(23,1)
-  
-  
+
   def cb(topic, msg):
-        TH=lib.dhts(19,22)
-        print("[",utime.time(),"]Mqtt接收<<<<",msg)
-        #if(msg['data']['get']=="state"):
-        mq.c.publish(mq.pubtopic,mq.playload({"pState":"True","temp":str(TH[0]),"humi":str(TH[1]), "pm25":"10","co2":"10"},"MIOT_r","vAssistant"))
+        print("[",utime.time(),"] Recv:",msg)
+        mq.c.publish(mq.pubtopic,mq.playload({"pState":"True","temp":"20","humi":"70", "pm25":"10","co2":"10"},"MIOT_r","vAssistant"))
         mq.ping()
 
-  mq=blinker("609f3e",cb,'sensor')  
+  mq=blinker("60975280bf3e",cb,'sensor')  
   while 1:
           utime.sleep(1)
           mq.c.check_msg()
+
 
