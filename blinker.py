@@ -90,7 +90,7 @@ if __name__ == "__main__":
             pass        
         mq.ping()
 
-  mq=blinker("e914cadf0ffd",cb,'sensor')  
+  mq=blinker("e914",cb,'sensor')  
   while 1:
           utime.sleep(1)
           mq.c.check_msg()
