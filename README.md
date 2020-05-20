@@ -2,6 +2,47 @@
 ========
 支持 电灯 和温度计的控制
 
+电灯:
+
+import   blinker,lib
+def cb(topic, msg):
+        mq.ping()
+        msg=eval(str(msg)[2:-1])
+        if msg['fromDevice']=='MIOT':
+          print (msg)
+          try:
+            msg['data']['get']
+            if(lib.pin_s[12]==0):
+              print("up_on")
+              #mq.c.publish(mq.pubtopic,mq.playload({"pState":"True"},"MIOT_r","vAssistant"))
+            else:
+              print("up_off")
+              #mq.c.publish(mq.pubtopic,mq.playload({"pState":"False"},"MIOT_r","vAssistant"))
+          except:
+            pass  
+          try:
+            if(msg['data']['set']['pState']=='true'):
+              print("on")
+              lib.pin(12,1)
+              mq.c.publish(mq.pubtopic,mq.playload({"pState":"True"},"MIOT_r","vAssistant"))
+            else:
+              print("off")
+              lib.pin(12,0)
+              mq.c.publish(mq.pubtopic,mq.playload({"pState":"False"},"MIOT_r","vAssistant"))
+          except:
+            pass
+
+
+
+mq=blinker.blinker("e914c",cb,'light') 
+while 1:
+
+  mq.c.check_msg()
+
+
+
+
+
 
 ![Image text](https://github.com/xinruoyusixian/Bxm/blob/master/E700CB39694B28FB598D20E738A8F7FA.jpg?raw=true)
 ##交互流程
