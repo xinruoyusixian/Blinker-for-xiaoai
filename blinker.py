@@ -49,21 +49,48 @@ class  blinker:
      'toDevice':   toDevice,
      'data':       msg ,
      'deviceType': deviceType})
-     print ("[",utime.time(),"]Send:",_data)
+     print ("[",utime.time(),"]Mqtt发送>>>>",_data)
      return _data
-       
+
+
 
 
 if __name__ == "__main__": 
-
+  import  lib
   def cb(topic, msg):
-        print("[",utime.time(),"] Recv:",msg)
-        mq.c.publish(mq.pubtopic,mq.playload({"pState":"True","temp":"20","humi":"70", "pm25":"10","co2":"10"},"MIOT_r","vAssistant"))
+        print("[",utime.time(),"]Mqtt接收<<<<",msg)
+        #传感器操作
+        mq.c.publish(mq.pubtopic,mq.playload({"pState":"True","temp":"25.8","humi":"66.8", "pm25":"10","co2":"10"},"MIOT_r","vAssistant"))
+        #电灯操作
+        msg=eval(str(msg)[2:-1])
+        if msg['fromDevice']=='MIOT':
+          print (msg)
+          try:
+            msg['data']['get']
+            #判断电灯状态      
+            if(lib.pin_s[12]==0):
+              print("up_on")
+              #mq.c.publish(mq.pubtopic,mq.playload({"pState":"True"},"MIOT_r","vAssistant"))
+            else:
+              print("up_off")
+              #mq.c.publish(mq.pubtopic,mq.playload({"pState":"False"},"MIOT_r","vAssistant"))
+          except:
+            pass
+          #设定电灯状态   
+          try:
+            if(msg['data']['set']['pState']=='true'):
+              print("on")
+              lib.pin(12,1)
+              mq.c.publish(mq.pubtopic,mq.playload({"pState":"True"},"MIOT_r","vAssistant"))
+            else:
+              print("off")
+              lib.pin(12,0)
+              mq.c.publish(mq.pubtopic,mq.playload({"pState":"False"},"MIOT_r","vAssistant"))
+          except:
+            pass        
         mq.ping()
 
-  mq=blinker("60975280bf3e",cb,'sensor')  
+  mq=blinker("e914cadf0ffd",cb,'sensor')  
   while 1:
           utime.sleep(1)
           mq.c.check_msg()
-
-
