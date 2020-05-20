@@ -3,7 +3,7 @@
 支持 电灯 和温度计的控制
 
 电灯:
-
+'''
 import   blinker,lib
 def cb(topic, msg):
         mq.ping()
@@ -38,8 +38,7 @@ mq=blinker.blinker("e914c",cb,'light')
 while 1:
 
   mq.c.check_msg()
-
-
+'''
 
 
 
