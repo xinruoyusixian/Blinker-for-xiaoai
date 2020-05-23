@@ -50,7 +50,7 @@ class  blinker:
      'toDevice':   toDevice,
      'data':       msg ,
      'deviceType': deviceType})
-     print ("[",utime.time(),"]Mqtt发送>>>>",_data)
+     print ("Mqtt发送>>>>",_data)
      return _data
   #发布消息   
   def publish(self,dict,toDevice="app"):
@@ -86,7 +86,7 @@ if __name__ == "__main__":
          
   def cb(topic, msg):
 
-        print("[",utime.time(),"]Mqtt接收<<<<",msg)
+        print("Mqtt接收<<<<",msg)
         #传感器操作
         mq.publish({"pState":"True","temp":"25.8","humi":"66.8", "pm25":"10","co2":"10"},"mi")
         #电灯操作
