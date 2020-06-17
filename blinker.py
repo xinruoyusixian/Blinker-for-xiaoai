@@ -1,9 +1,18 @@
 
 
 
+
+
+
+
 import ujson
 from robust import MQTTClient
 from urequests import get 
+
+
+
+
+
 
 class  blinker:
   '''
@@ -13,7 +22,8 @@ class  blinker:
   '''
   def __init__(self,key,cb,devTpye="light"):
     self.devTpye=devTpye
-    self.info=  self.getInfo(key,self.devTpye) 
+    self.key=key
+    self.info= self.input_json_data_from_file("blinker_login_conf.py")
     SERVER = "public.iot-as-mqtt.cn-shanghai.aliyuncs.com"
     USER=self.info['detail']['iotId']
     PWD=self.info['detail']['iotToken']
@@ -26,15 +36,34 @@ class  blinker:
     print("user:",USER,"CLIENT_ID:",CLIENT_ID,self.subtopic,"/r",self.pubtopic)
     if not self.c.connect(clean_session=False):
           print("New session being set .")
-          self.c.subscribe(self.subtopic)
+          try: 
+            self.c.subscribe(self.subtopic)
+          except:
+            print("login failed")
+            self.getInfo(self.key,self.devTpye)
+            self.__init__(self.key,self.devTpye)
          
   #获取登录信息
+  
   def getInfo(self,auth,type_="light"):
       host = 'https://iot.diandeng.tech'
-      url = '/api/v1/user/device/diy/auth?authKey=' + auth + "&miType="+type_+"&version=1.2.2"
-      print (host ,url)
-      data =  ujson.loads(get(host + url).text)
+      url = '/api/v1/user/device/diy/auth?authKey=' + auth + "&miType="+type_+"&version=0.1.0"
+      data =  get(host + url).text
+
+      fo = open("blinker_login_conf.py", "w")
+
+
+      fo.write(str(data))
+
+
+      fo.close()
       return data
+
+
+      
+
+
+      
 
   #心跳回复
   def ping(self):  
@@ -50,7 +79,7 @@ class  blinker:
      'toDevice':   toDevice,
      'data':       msg ,
      'deviceType': deviceType})
-     print ("Mqtt发送>>>>",_data)
+     #print ("Mqtt发送>>>>",_data)
      return _data
   #发布消息   
   def publish(self,dict,toDevice="app"):
@@ -63,7 +92,46 @@ class  blinker:
       self.c.publish(self.pubtopic,self.playload(dict,toDevice,deviceType))
         
 
+  def input_json_data_from_file(self,path):
+      """
+      从文件中获取json数据
+      :param path: 文件路径
+      :return json_data: 返回转换为json格式后的json数据
+      """
+      try:
+          with open(path, 'r+') as f:
+              try:
+                  json_data = ujson.load(f)
 
+
+              except Exception as e:
+
+
+                  print('json format is error：' + str(e))
+
+
+          return json_data
+
+
+      except Exception as e:
+
+          print("file is not exist")
+          self.getInfo(self.key,self.devTpye)
+          return  self.input_json_data_from_file("blinker_login_conf.py")
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+            
 
 if __name__ == "__main__": 
   from machine import Pin
@@ -118,7 +186,7 @@ if __name__ == "__main__":
             pass        
         mq.ping()
 
-  mq=blinker("b14b891ec11b",cb,'sensor')  
+  mq=blinker("fbc6da5da621",cb,'sensor')  
   while 1:
           utime.sleep(1)
           mq.c.check_msg()
