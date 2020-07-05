@@ -4,6 +4,7 @@
 
 
 
+
 import ujson
 from simple import MQTTClient
 from urequests import get 
@@ -71,6 +72,7 @@ class  blinker:
   def reconnect(self):
     try:
       self.c.connect(False)
+      self.state=0
       print("reconnected!")
     except OSError as e:
         self.state+=1
@@ -131,8 +133,6 @@ class  blinker:
 
 
 
-
-   
 
 if __name__ == "__main__": 
    import   time ,lib,blinker
