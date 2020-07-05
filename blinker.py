@@ -5,6 +5,7 @@
 
 
 
+
 import ujson
 from simple import MQTTClient
 from urequests import get 
@@ -32,11 +33,14 @@ class  blinker:
   def getInfo(self,auth,type_="light"):
       host = 'https://iot.diandeng.tech'
       url = '/api/v1/user/device/diy/auth?authKey=' + auth + "&miType="+type_+"&version=0.1.0"
-      data =  get(host + url).text
-      fo = open("blinker_login_conf.py", "w")
-      fo.write(str(data))
-      fo.close()
-      return data
+      try:
+        data =  get(host + url).text
+        fo = open("blinker_login_conf.py", "w")
+        fo.write(str(data))
+        fo.close()
+        return data
+      except:
+        raise Exception("Get_mqtt_server_info_err")
 
 
   #MQQT 连接    
@@ -72,7 +76,6 @@ class  blinker:
   def reconnect(self):
     try:
       self.c.connect(False)
-      self.state=0
       print("reconnected!")
     except OSError as e:
         self.state+=1
@@ -125,9 +128,13 @@ class  blinker:
                   print('json format is error：' + str(e))
           return json_data
       except Exception as e:
-          print("file is not exist")
+          print("config_file_is_not_exist_and_will_be_created.")
           self.getInfo(self.key,self.devTpye)
           return  self.input_json_data_from_file("blinker_login_conf.py")
+
+
+
+
 
 
 
