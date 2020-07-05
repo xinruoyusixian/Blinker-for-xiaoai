@@ -1,5 +1,9 @@
 
 
+
+
+
+
 import ujson
 from simple import MQTTClient
 from urequests import get 
@@ -12,6 +16,7 @@ class  blinker:
   '''
   def __init__(self,key,cb,devTpye="light"):
     self.devTpye=devTpye
+    self.state=0
     self.cb=cb
     self.key=key
     #self.info=  self.getInfo(key,self.devTpye) 
@@ -41,30 +46,37 @@ class  blinker:
     self.subtopic="/"+self.info['detail']['productKey']+"/"+self.info['detail']['deviceName']+"/r"
     self.pubtopic=b"/"+self.info['detail']['productKey']+"/"+self.info['detail']['deviceName']+"/s"
     print("user:",self.USER,"CLIENT_ID:",self.CLIENT_ID,self.subtopic,"/r",self.pubtopic)
-    if not self.c.connect(clean_session=False):
-          print("New session being set .")
-          try: 
-            self.c.subscribe(self.subtopic)
-          except:
-            print("login failed!")
-            self.getInfo(self.key,self.devTpye)
-            self.__init__(self.key,self.devTpye)
+    try:
+      print("connect: try",self.state,"times")
+      if not self.c.connect(clean_session=False):
+            try: 
+              self.c.subscribe(self.subtopic)
+            except:
+              print("connect:Failed")
+              self.state+=1
+              self.getInfo(self.key,self.devTpye)
+              self.__init__(self.key,self.devTpye)
+            print("New session being set .")
+            self.state=0
+    except:
+      print("check NETWORK and login infomtaion")
   #mqtt 信息轮询
   def check_msg(self):
       try:
         self.c.check_msg()
       except OSError as e:
-        print ("msg check:",e)
+        print ("check:",e)
         self.reconnect()
-  #MQQT 重连      
+  #mqtt 重连      
   def reconnect(self):
     try:
       self.c.connect(False)
       print("reconnected!")
     except OSError as e:
+        self.state+=1
         print ("reconnect:",e)
         self.connect()
-  #心跳回复
+  #mqtt 心跳回复
   def ping(self):  
     self.publish({"state":"online"}) 
     
@@ -81,7 +93,7 @@ class  blinker:
      #print ("Mqtt发送>>>>",_data)
      return _data
      
-  #发布消息
+  #mqtt 发布消息
   def publish(self,dict,toDevice="app"):
       if toDevice=="app":
          toDevice=''
@@ -116,7 +128,11 @@ class  blinker:
           return  self.input_json_data_from_file("blinker_login_conf.py")
 
 
-    
+
+
+
+
+   
 
 if __name__ == "__main__": 
    import   time ,lib,blinker
