@@ -17,8 +17,10 @@ class  blinker:
   #cb 回调函数 例如 def cb(topic, msg):
   '''
   def __init__(self,key,cb,devTpye="light"):
+    self.keepalive=120
+    self.reconnect_count=0
+    self.connect_count=0
     self.devTpye=devTpye
-    self.state=0
     self.cb=cb
     self.key=key
     #self.info=  self.getInfo(key,self.devTpye) 
@@ -33,39 +35,37 @@ class  blinker:
   def getInfo(self,auth,type_="light"):
       host = 'https://iot.diandeng.tech'
       url = '/api/v1/user/device/diy/auth?authKey=' + auth + "&miType="+type_+"&version=0.1.0"
-      try:
-        data =  get(host + url).text
-        fo = open("blinker_login_conf.py", "w")
-        fo.write(str(data))
-        fo.close()
-        return data
-      except:
-        raise Exception("Get_mqtt_server_info_err")
+      data =  get(host + url).text
+      fo = open("blinker_login_conf.py", "w")
+      fo.write(str(data))
+      fo.close()
+      return data 
 
 
   #MQQT 连接    
   def connect(self):
-    self.c=MQTTClient(client_id=self.CLIENT_ID,server=self.SERVER,user=self.USER,password=self.PWD,keepalive=30)
+    self.c=MQTTClient(client_id=self.CLIENT_ID,server=self.SERVER,user=self.USER,password=self.PWD,keepalive=self.keepalive)
     self.c.DEBUG = True
     self.c.set_callback(self.cb)
     self.subtopic="/"+self.info['detail']['productKey']+"/"+self.info['detail']['deviceName']+"/r"
     self.pubtopic=b"/"+self.info['detail']['productKey']+"/"+self.info['detail']['deviceName']+"/s"
     print("user:",self.USER,"CLIENT_ID:",self.CLIENT_ID,self.subtopic,"/r",self.pubtopic)
     try:
-      print("connect: try",self.state,"times")
       if not self.c.connect(clean_session=False):
             try: 
               self.c.subscribe(self.subtopic)
+              self.connect_count+=1
+              self.log()
             except:
               print("connect:Failed")
-              self.state+=1
               self.getInfo(self.key,self.devTpye)
               self.__init__(self.key,self.devTpye)
             print("New session being set .")
-            self.state=0
     except:
       print("check NETWORK and login infomtaion")
   #mqtt 信息轮询
+  def log(self):
+      print("reconnected:",self.reconnect_count,"times,connected:",self.connect_count,"times")
   def check_msg(self):
       try:
         self.c.check_msg()
@@ -75,16 +75,21 @@ class  blinker:
   #mqtt 重连      
   def reconnect(self):
     try:
+
       self.c.connect(False)
-      print("reconnected!")
+      self.reconnect_count+=1
+      self.log()
     except OSError as e:
-        self.state+=1
         print ("reconnect:",e)
         self.connect()
   #mqtt 心跳回复
-  def ping(self):  
-    self.publish({"state":"online"}) 
-    
+  def ping(self): 
+    try:
+        self.c.ping()
+        self.publish({"state":"online"}) 
+    except OSError as e:
+        print ("reconnect:",e)
+        self.connect()    
 
   #数据整合成特定json
   def playload(self,msg,toDevice="",deviceType='OwnApp'):
@@ -128,9 +133,10 @@ class  blinker:
                   print('json format is error：' + str(e))
           return json_data
       except Exception as e:
-          print("config_file_is_not_exist_and_will_be_created.")
+          print("file is not exist")
           self.getInfo(self.key,self.devTpye)
           return  self.input_json_data_from_file("blinker_login_conf.py")
+
 
 
 
