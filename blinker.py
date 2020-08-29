@@ -1,15 +1,29 @@
 
 
 
-
-
-
-
-
-import ujson
+import ujson,time
 from simple import MQTTClient
 from urequests import get 
+DEBUG=0
 
+def log(arg1, *vartuple):
+    # timeInfo = time.strftime("%H:%M:%S %Y", time.localtime())
+    if DEBUG== False :
+        return
+    data = str(arg1)
+    for var in vartuple:
+        data = data + str(var)
+    data = '[' + str(millis()) + '] ' + data
+    print(data)
+
+
+os_time_start = time.ticks_ms()
+
+def millis():
+
+    return time.ticks_ms() - os_time_start
+
+    
 class  blinker:
   '''
   # key:密码
@@ -17,6 +31,7 @@ class  blinker:
   #cb 回调函数 例如 def cb(topic, msg):
   '''
   def __init__(self,key,cb,devTpye="light"):
+    self.blinker_conf='_blinker_conf.py'
     self.keepalive=120
     self.reconnect_count=0
     self.connect_count=0
@@ -24,7 +39,7 @@ class  blinker:
     self.cb=cb
     self.key=key
     #self.info=  self.getInfo(key,self.devTpye) 
-    self.info= self.input_json_data_from_file("blinker_login_conf.py")
+    self.info= self.input_json_data_from_file(self.blinker_conf)
     self.SERVER = "public.iot-as-mqtt.cn-shanghai.aliyuncs.com"
     self.USER=self.info['detail']['iotId']
     self.PWD=self.info['detail']['iotToken']
@@ -36,7 +51,9 @@ class  blinker:
       host = 'https://iot.diandeng.tech'
       url = '/api/v1/user/device/diy/auth?authKey=' + auth + "&miType="+type_+"&version=0.1.0"
       data =  get(host + url).text
-      fo = open("blinker_login_conf.py", "w")
+      if DEBUG:
+        log(data)
+      fo = open(self.blinker_conf, "w")
       fo.write(str(data))
       fo.close()
       return data 
@@ -49,7 +66,8 @@ class  blinker:
     self.c.set_callback(self.cb)
     self.subtopic="/"+self.info['detail']['productKey']+"/"+self.info['detail']['deviceName']+"/r"
     self.pubtopic=b"/"+self.info['detail']['productKey']+"/"+self.info['detail']['deviceName']+"/s"
-    print("user:",self.USER,"CLIENT_ID:",self.CLIENT_ID,self.subtopic,"/r",self.pubtopic)
+    if DEBUG:
+      log("user:",self.USER,"CLIENT_ID:",self.CLIENT_ID,self.subtopic,"/r",self.pubtopic)
     try:
       if not self.c.connect(clean_session=False):
             try: 
@@ -57,20 +75,22 @@ class  blinker:
               self.connect_count+=1
               self.log()
             except:
-              print("connect:Failed")
+              log("connect:Failed")
               self.getInfo(self.key,self.devTpye)
               self.__init__(self.key,self.devTpye)
-            print("New session being set .")
+            log("New session being set .")
     except:
-      print("check NETWORK and login infomtaion")
+      log("check NETWORK and login infomtaion")
   #mqtt 信息轮询
   def log(self):
-      print("reconnected:",self.reconnect_count,"times,connected:",self.connect_count,"times")
+    if DEBUG:
+      log("reconnected:",self.reconnect_count,"times,connected:",self.connect_count,"times")
   def check_msg(self):
       try:
         self.c.check_msg()
       except OSError as e:
-        print ("check:",e)
+        if DEBUG:
+          log ("check:",e)
         self.reconnect()
   #mqtt 重连      
   def reconnect(self):
@@ -80,15 +100,18 @@ class  blinker:
       self.reconnect_count+=1
       self.log()
     except OSError as e:
-        print ("reconnect:",e)
+        if DEBUG:
+          log ("reconnect:",e)
         self.connect()
   #mqtt 心跳回复
   def ping(self): 
     try:
         self.c.ping()
-        self.publish({"state":"online"}) 
+        if DEBUG:
+          self.publish({"state":"online"}) 
     except OSError as e:
-        print ("reconnect:",e)
+        if DEBUG:
+          log ("reconnect:",e)
         self.connect()    
 
   #数据整合成特定json
@@ -100,7 +123,8 @@ class  blinker:
      'toDevice':   toDevice,
      'data':       msg ,
      'deviceType': deviceType})
-     #print ("Mqtt发送>>>>",_data)
+     if DEBUG:
+        log ("Mqtt发送>>>>",_data)
      return _data
      
   #mqtt 发布消息
@@ -114,7 +138,8 @@ class  blinker:
       try:   
         self.c.publish(self.pubtopic,self.playload(dict,toDevice,deviceType))
       except OSError as e:
-        print ("publish:",e)
+        if DEBUG:
+           log ("publish:",e)
         self.reconnect()
         
         
@@ -130,12 +155,15 @@ class  blinker:
               try:
                   json_data = ujson.load(f)
               except Exception as e:
-                  print('json format is error：' + str(e))
+                  log('json format is error：' + str(e))
           return json_data
       except Exception as e:
-          print("file is not exist")
+          log("file is not exist")
           self.getInfo(self.key,self.devTpye)
-          return  self.input_json_data_from_file("blinker_login_conf.py")
+          return  self.input_json_data_from_file(self.blinker_conf)
+
+
+
 
 
 
