@@ -2,6 +2,7 @@
 
 
 
+
 import ujson,time
 from simple import MQTTClient
 from urequests import get 
@@ -37,17 +38,16 @@ class  blinker:
     self.devTpye=devTpye
     self.cb=cb
     self.key=key
-    try:
-      self.info= self.read_conf()
-      self.SERVER = "public.iot-as-mqtt.cn-shanghai.aliyuncs.com"
-      self.USER=self.info['detail']['iotId']
-      self.PWD=self.info['detail']['iotToken']
-      self.CLIENT_ID =  self.info['detail']['deviceName']
-      self.connect()
-    except:
-      self.info=  self.getInfo(key,self.devTpye)
-      self.__init__(self.key,self.devTpye)
-         
+    self.info= self.read_conf()
+    self.SERVER = "public.iot-as-mqtt.cn-shanghai.aliyuncs.com"
+    self.USER=self.info['detail']['iotId']
+    self.PWD=self.info['detail']['iotToken']
+    self.CLIENT_ID =  self.info['detail']['deviceName']
+    self.c=MQTTClient(client_id=self.CLIENT_ID,server=self.SERVER,user=self.USER,password=self.PWD,keepalive=self.keepalive)
+    self.c.DEBUG = True
+    self.c.set_callback(self.cb)
+    self.subtopic="/"+self.info['detail']['productKey']+"/"+self.info['detail']['deviceName']+"/r"
+    self.pubtopic=b"/"+self.info['detail']['productKey']+"/"+self.info['detail']['deviceName']+"/s"
   #获取登录信息
   def getInfo(self,auth,type_="light"):
       log("getInfo:抓取登录信息")
@@ -66,11 +66,7 @@ class  blinker:
   #MQQT 连接    
   def connect(self):
     log("connect:准备连接....")
-    self.c=MQTTClient(client_id=self.CLIENT_ID,server=self.SERVER,user=self.USER,password=self.PWD,keepalive=self.keepalive)
-    self.c.DEBUG = True
-    self.c.set_callback(self.cb)
-    self.subtopic="/"+self.info['detail']['productKey']+"/"+self.info['detail']['deviceName']+"/r"
-    self.pubtopic=b"/"+self.info['detail']['productKey']+"/"+self.info['detail']['deviceName']+"/s"
+
     if DEBUG:
       log("user:",self.USER,"CLIENT_ID:",self.CLIENT_ID,self.subtopic,"/r",self.pubtopic)
     try:
@@ -168,4 +164,5 @@ class  blinker:
           log("文件不存在!")
           self.getInfo(self.key,self.devTpye)
           return  self.read_conf(self.blinker_path)
+
 
