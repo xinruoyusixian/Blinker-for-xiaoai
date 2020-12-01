@@ -30,7 +30,7 @@ class  blinker:
   #cb 回调函数 例如 def cb(topic, msg):
   '''
   def __init__(self,key,cb,devTpye="light"):
-    self.blinker_conf='_blinker_conf.py'
+    self.blinker_path='_blinker_conf.py'
     self.keepalive=120
     self.reconnect_count=0
     self.connect_count=0
@@ -38,11 +38,11 @@ class  blinker:
     self.cb=cb
     self.key=key
     try:
-      self.info= self.read_conf(self.blinker_conf)
-      self.__SERVER = "public.iot-as-mqtt.cn-shanghai.aliyuncs.com"
-      self.__USER=self.info['detail']['iotId']
-      self.__PWD=self.info['detail']['iotToken']
-      self.__CLIENT_ID =  self.info['detail']['deviceName']
+      self.info= self.read_conf()
+      self.SERVER = "public.iot-as-mqtt.cn-shanghai.aliyuncs.com"
+      self.USER=self.info['detail']['iotId']
+      self.PWD=self.info['detail']['iotToken']
+      self.CLIENT_ID =  self.info['detail']['deviceName']
       self.connect()
     except:
       self.info=  self.getInfo(key,self.devTpye)
@@ -57,7 +57,7 @@ class  blinker:
       data =  get(host + url).text
       log("data:",data)
       
-      fo = open(self.blinker_conf, "w")
+      fo = open(self.blinker_path, "w")
       fo.write(str(data))
       fo.close()
       return data 
@@ -148,7 +148,7 @@ class  blinker:
         
         
   
-  def read_conf(self,path):
+  def read_conf(self):
       """
       从文件中获取json数据
       :param path: 文件路径
@@ -156,7 +156,7 @@ class  blinker:
       """
       log("读取登录数据....")
       try:
-          with open(path, 'r+') as f:
+          with open(self.blinker_path, 'r+') as f:
               try:
                   json_data = ujson.load(f)
               except Exception as e:
@@ -167,4 +167,5 @@ class  blinker:
       except Exception as e:
           log("文件不存在!")
           self.getInfo(self.key,self.devTpye)
-          return  self.read_conf(self.blinker_conf)
+          return  self.read_conf(self.blinker_path)
+
