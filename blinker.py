@@ -1,6 +1,7 @@
 
 
 
+
 import ujson,time
 from simple import MQTTClient
 from urequests import get 
@@ -18,9 +19,7 @@ def log(arg1, *vartuple):
 
 
 os_time_start = time.ticks_ms()
-
 def millis():
-
     return time.ticks_ms() - os_time_start
 
     
@@ -38,21 +37,26 @@ class  blinker:
     self.devTpye=devTpye
     self.cb=cb
     self.key=key
-    #self.info=  self.getInfo(key,self.devTpye) 
-    self.info= self.input_json_data_from_file(self.blinker_conf)
-    self.SERVER = "public.iot-as-mqtt.cn-shanghai.aliyuncs.com"
-    self.USER=self.info['detail']['iotId']
-    self.PWD=self.info['detail']['iotToken']
-    self.CLIENT_ID =  self.info['detail']['deviceName']
-    self.connect()
+    try:
+      self.info= self.read_conf(self.blinker_conf)
+      self.__SERVER = "public.iot-as-mqtt.cn-shanghai.aliyuncs.com"
+      self.__USER=self.info['detail']['iotId']
+      self.__PWD=self.info['detail']['iotToken']
+      self.__CLIENT_ID =  self.info['detail']['deviceName']
+      self.connect()
+    except:
+      self.info=  self.getInfo(key,self.devTpye)
+      self.__init__(self.key,self.devTpye)
          
   #获取登录信息
   def getInfo(self,auth,type_="light"):
+      log("getInfo:抓取登录信息")
       host = 'https://iot.diandeng.tech'
       url = '/api/v1/user/device/diy/auth?authKey=' + auth + "&miType="+type_+"&version=0.1.0"
+      log("url:",url)
       data =  get(host + url).text
-      if DEBUG:
-        log(data)
+      log("data:",data)
+      
       fo = open(self.blinker_conf, "w")
       fo.write(str(data))
       fo.close()
@@ -61,6 +65,7 @@ class  blinker:
 
   #MQQT 连接    
   def connect(self):
+    log("connect:准备连接....")
     self.c=MQTTClient(client_id=self.CLIENT_ID,server=self.SERVER,user=self.USER,password=self.PWD,keepalive=self.keepalive)
     self.c.DEBUG = True
     self.c.set_callback(self.cb)
@@ -74,46 +79,45 @@ class  blinker:
               self.c.subscribe(self.subtopic)
               self.connect_count+=1
               self.log()
+              log("新会话已连接.")
             except:
-              log("connect:Failed")
+              log("连接失败")
               self.getInfo(self.key,self.devTpye)
               self.__init__(self.key,self.devTpye)
-            log("New session being set .")
+      
     except:
-      log("check NETWORK and login infomtaion")
+      log("检查网络或登录信息")
   #mqtt 信息轮询
   def log(self):
     if DEBUG:
-      log("reconnected:",self.reconnect_count,"times,connected:",self.connect_count,"times")
+      log("重连: ",self.reconnect_count," 次,连接: ",self.connect_count," 次")
   def check_msg(self):
       try:
         self.c.check_msg()
       except OSError as e:
-        if DEBUG:
-          log ("check:",e)
         self.reconnect()
   #mqtt 重连      
   def reconnect(self):
     try:
-
       self.c.connect(False)
       self.reconnect_count+=1
       self.log()
     except OSError as e:
-        if DEBUG:
-          log ("reconnect:",e)
         self.connect()
   #mqtt 心跳回复
   def ping(self): 
+    #
     try:
         self.c.ping()
         if DEBUG:
-          self.publish({"state":"online"}) 
+          print("Mqtt Ping")
     except OSError as e:
-        if DEBUG:
-          log ("reconnect:",e)
-        self.connect()    
-
+        self.reconnect()
+  def onLine(self):
+      try:
+        self.publish({"state":"online"}) 
+      except OSError as e:
+        self.reconnect()     
   #数据整合成特定json
   def playload(self,msg,toDevice="",deviceType='OwnApp'):
      if toDevice=="":
@@ -144,88 +148,23 @@ class  blinker:
         
         
   
-  def input_json_data_from_file(self,path):
+  def read_conf(self,path):
       """
       从文件中获取json数据
       :param path: 文件路径
       :return json_data: 返回转换为json格式后的json数据
       """
+      log("读取登录数据....")
       try:
           with open(path, 'r+') as f:
               try:
                   json_data = ujson.load(f)
               except Exception as e:
-                  log('json format is error：' + str(e))
+                log('不是json文件' + str(e))
+
+          log("文件内容:",json_data)
           return json_data
       except Exception as e:
-          log("file is not exist")
+          log("文件不存在!")
           self.getInfo(self.key,self.devTpye)
-          return  self.input_json_data_from_file(self.blinker_conf)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-if __name__ == "__main__": 
-   import   time ,lib,blinker
-
-
-  def cb(topic, msg):
-          print("Mqtt REC<<<<",msg)
-          #传感器操作
-          msg=eval(str(msg)[2:-1])
-          print("Mqtt接收<<<<",msg)
-          #电灯操作
-          try:
-            if msg['data']['btn-sw']=='tap':
-               if lib.pin_s[12]==0:
-                 lib.pin(12,1)
-                 mq.publish({"btn-sw":{"col":"#000000", }})    
-               else:
-                lib.pin(12,0)
-                mq.publish({"btn-sw":{"col":"#FFFFFF", }})
-          except:
-            pass        
-          if msg['fromDevice']=='MIOT':
-
-            try:
-              if(msg['data']['set']['pState']=='true'):
-                print("on")
-                lib.pin(12,1)
-
-              else:
-                print("off")
-                lib.pin(12,0)
-
-            except:
-              pass 
-
-          mq.ping()
-          print("exec")
-
-  a="0"
-  mq=blinker.blinker("b14b891ec11b",cb,'light')
-
-
-
-
-  t=1
-  lib.pin(2,1)
-  lib.pin(12,0)
-  mq.ping()
-  while 1:
-      if t%120==0:
-        mq.ping()
-      time.sleep(1)
-      t+=1
-      mq.check_msg()
-      print(t)
+          return  self.read_conf(self.blinker_conf)
