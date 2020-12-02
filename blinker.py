@@ -33,7 +33,6 @@ class  blinker:
   def __init__(self,key,cb,devTpye="light"):
     self.blinker_path='_blinker_conf.py'
     self.keepalive=120
-    self.reconnect_count=0
     self.connect_count=0
     self.devTpye=devTpye
     self.cb=cb
@@ -86,19 +85,11 @@ class  blinker:
   #mqtt 信息轮询
   def log(self):
     if DEBUG:
-      log("重连: ",self.reconnect_count," 次,连接: ",self.connect_count," 次")
+      log("连接: ",self.connect_count," 次")
   def check_msg(self):
       try:
         self.c.check_msg()
       except OSError as e:
-        self.reconnect()
-  #mqtt 重连      
-  def reconnect(self):
-    try:
-      self.c.connect(False)
-      self.reconnect_count+=1
-      self.log()
-    except OSError as e:
         self.connect()
   #mqtt 心跳回复
   def ping(self): 
@@ -108,12 +99,12 @@ class  blinker:
         if DEBUG:
           print("Mqtt Ping")
     except OSError as e:
-        self.reconnect()
+        self.connect()
   def onLine(self):
       try:
         self.publish({"state":"online"}) 
       except OSError as e:
-        self.reconnect()     
+        self.connect()     
   #数据整合成特定json
   def playload(self,msg,toDevice="",deviceType='OwnApp'):
      if toDevice=="":
@@ -140,7 +131,7 @@ class  blinker:
       except OSError as e:
         if DEBUG:
            log ("publish:",e)
-        self.reconnect()
+        self.connect()
         
         
   
