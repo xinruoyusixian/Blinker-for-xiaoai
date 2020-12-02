@@ -1,8 +1,3 @@
-
-
-
-
-
 import ujson,time
 from simple import MQTTClient
 from urequests import get 
