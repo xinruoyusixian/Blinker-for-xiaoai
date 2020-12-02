@@ -1,3 +1,9 @@
+
+
+
+
+
+
 import ujson,time
 from simple import MQTTClient
 from urequests import get 
@@ -89,6 +95,10 @@ class  blinker:
   #mqtt 心跳回复
   def ping(self): 
     #
+    
+    
+    
+    
     try:
         self.c.ping()
         if DEBUG:
@@ -109,8 +119,6 @@ class  blinker:
      'toDevice':   toDevice,
      'data':       msg ,
      'deviceType': deviceType})
-     if DEBUG:
-        log ("Mqtt发送>>>>",_data)
      return _data
      
   #mqtt 发布消息
@@ -123,6 +131,8 @@ class  blinker:
          deviceType='vAssistant'
       try:   
         self.c.publish(self.pubtopic,self.playload(dict,toDevice,deviceType))
+        if DEBUG:
+            log ("Mqtt发送>>>>",dict)        
       except OSError as e:
         if DEBUG:
            log ("publish:",e)
@@ -150,5 +160,6 @@ class  blinker:
           log("文件不存在!")
           self.getInfo(self.key,self.devTpye)
           return  self.read_conf(self.blinker_path)
+
 
 
