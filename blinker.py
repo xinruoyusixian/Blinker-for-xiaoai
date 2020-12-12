@@ -1,10 +1,4 @@
-
-
-
-
-
-
-import ujson,time
+import ujson,time,os
 from simple import MQTTClient
 from urequests import get 
 DEBUG=0
@@ -39,6 +33,11 @@ class  blinker:
     self.cb=cb
     self.key=key
     self.info= self.read_conf()
+    if self.info["message"]!=1000:
+        os.remove(self.blinker_conf)
+        raise Exception(self.info['detail'])
+    
+    self.SERVER = self.info['detail']['host']
     self.SERVER = "public.iot-as-mqtt.cn-shanghai.aliyuncs.com"
     self.USER=self.info['detail']['iotId']
     self.PWD=self.info['detail']['iotToken']
@@ -160,6 +159,3 @@ class  blinker:
           log("文件不存在!")
           self.getInfo(self.key,self.devTpye)
           return  self.read_conf(self.blinker_path)
-
-
-
