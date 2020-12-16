@@ -1,4 +1,13 @@
-import ujson,time,os
+
+
+
+
+
+
+
+
+
+import ujson,time
 from simple import MQTTClient
 from urequests import get 
 DEBUG=0
@@ -33,11 +42,6 @@ class  blinker:
     self.cb=cb
     self.key=key
     self.info= self.read_conf()
-    if self.info["message"]!=1000:
-        os.remove(self.blinker_conf)
-        raise Exception(self.info['detail'])
-    
-    self.SERVER = self.info['detail']['host']
     self.SERVER = "public.iot-as-mqtt.cn-shanghai.aliyuncs.com"
     self.USER=self.info['detail']['iotId']
     self.PWD=self.info['detail']['iotToken']
@@ -47,6 +51,7 @@ class  blinker:
     self.c.set_callback(self.cb)
     self.subtopic="/"+self.info['detail']['productKey']+"/"+self.info['detail']['deviceName']+"/r"
     self.pubtopic=b"/"+self.info['detail']['productKey']+"/"+self.info['detail']['deviceName']+"/s"
+    self.pubtopic_rrpc='' #处理接受的rrPC主题 b'/sys/JgCGbHlndgz/ACCE36BECFL32BHDK341C2PV/rrpc/response/1339256299887748096'
   #获取登录信息
   def getInfo(self,auth,type_="light"):
       log("getInfo:抓取登录信息")
@@ -122,16 +127,18 @@ class  blinker:
      
   #mqtt 发布消息
   def publish(self,dict,toDevice="app"):
+      pt=self.pubtopic
       if toDevice=="app":
          toDevice=''
          deviceType='OwnApp'
       if toDevice=="mi":
          toDevice='MIOT_r'
          deviceType='vAssistant'
+         pt=self.pubtopic_rrpc
       try:   
-        self.c.publish(self.pubtopic,self.playload(dict,toDevice,deviceType))
+        self.c.publish(pt,self.playload(dict,toDevice,deviceType))
         if DEBUG:
-            log ("Mqtt发送>>>>",dict)        
+            log ("Mqtt发送>>>>",pt, dict)        
       except OSError as e:
         if DEBUG:
            log ("publish:",e)
@@ -159,3 +166,9 @@ class  blinker:
           log("文件不存在!")
           self.getInfo(self.key,self.devTpye)
           return  self.read_conf(self.blinker_path)
+
+
+
+
+
+
