@@ -41,8 +41,8 @@ class  blinker:
     self.devTpye=devTpye
     self.cb=cb
     self.key=key
-    self.info= self.read_conf()
-    self.SERVER = "public.iot-as-mqtt.cn-shanghai.aliyuncs.com"
+    self.info= self.read_conf() 
+    self.SERVER = self.info['detail']['host'][8:]
     self.USER=self.info['detail']['iotId']
     self.PWD=self.info['detail']['iotToken']
     self.CLIENT_ID =  self.info['detail']['deviceName']
@@ -98,11 +98,6 @@ class  blinker:
         self.connect()
   #mqtt 心跳回复
   def ping(self): 
-    #
-    
-    
-    
-    
     try:
         self.c.ping()
         if DEBUG:
