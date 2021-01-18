@@ -7,6 +7,10 @@
 
 
 
+
+
+
+
 import ujson,time
 from simple import MQTTClient
 from urequests import get 
@@ -35,23 +39,23 @@ class  blinker:
   #cb 回调函数 例如 def cb(topic, msg):
   '''
   def __init__(self,key,cb,devTpye="light"):
-    self.blinker_path='_blinker_conf.py'
+    self.blinker_path='blinker_'+key+'.py'
     self.keepalive=120
     self.connect_count=0
     self.devTpye=devTpye
-    self.cb=cb
     self.key=key
-    self.info= self.read_conf() 
-    self.SERVER = self.info['detail']['host'][8:]
+    self.info= self.read_conf()
+    self.SERVER = "public.iot-as-mqtt.cn-shanghai.aliyuncs.com"
     self.USER=self.info['detail']['iotId']
     self.PWD=self.info['detail']['iotToken']
     self.CLIENT_ID =  self.info['detail']['deviceName']
     self.c=MQTTClient(client_id=self.CLIENT_ID,server=self.SERVER,user=self.USER,password=self.PWD,keepalive=self.keepalive)
     self.c.DEBUG = True
-    self.c.set_callback(self.cb)
+    self.cb=cb
+    self.c.set_callback(self.p_data)
     self.subtopic="/"+self.info['detail']['productKey']+"/"+self.info['detail']['deviceName']+"/r"
     self.pubtopic=b"/"+self.info['detail']['productKey']+"/"+self.info['detail']['deviceName']+"/s"
-    self.pubtopic_rrpc='' #处理接受的rrPC主题 b'/sys/JgCGbHlndgz/ACCE36BECFL32BHDK341C2PV/rrpc/response/1339256299887748096'
+    self.pubtopic_rrpc=''
   #获取登录信息
   def getInfo(self,auth,type_="light"):
       log("getInfo:抓取登录信息")
@@ -66,6 +70,17 @@ class  blinker:
       fo.close()
       return data 
 
+  def p_data(self,tpc,msg):
+      log("接收: ",msg)
+      msg=eval(msg.decode())
+      type=msg['fromDevice'] if len(msg['fromDevice'])!=32 else  'DiyArduino'
+      try:
+        button=list(msg['data'].keys())[0]
+        action=msg['data'][button]
+        button={'deviceType':type,'data':[button,action]}
+      except:
+        button={'deviceType':type,'data':msg['data']}
+      self.cb(tpc,button)
 
   #MQQT 连接    
   def connect(self):
@@ -98,6 +113,7 @@ class  blinker:
         self.connect()
   #mqtt 心跳回复
   def ping(self): 
+    #
     try:
         self.c.ping()
         if DEBUG:
@@ -160,7 +176,7 @@ class  blinker:
       except Exception as e:
           log("文件不存在!")
           self.getInfo(self.key,self.devTpye)
-          return  self.read_conf(self.blinker_path)
+          return  self.read_conf()
 
 
 
